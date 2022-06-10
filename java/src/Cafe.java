@@ -274,10 +274,10 @@ public class Cafe {
                 System.out.println(".........................");
                 System.out.println("9. Log out");
                 switch (readChoice()){
-                   case 1: Menu(esql); break;
-                   case 2: UpdateProfile(esql); break;
-                   case 3: PlaceOrder(esql); break;
-                   case 4: UpdateOrder(esql); break;
+                   case 1: Menu(esql, authorisedUser); break;
+                   case 2: UpdateProfile(esql, authorisedUser); break;
+                   case 3: PlaceOrder(esql, authorisedUser); break;
+                   case 4: UpdateOrder(esql, authorisedUser); break;
                    case 9: usermenu = false; break;
                    default : System.out.println("Unrecognized choice!"); break;
                 }
@@ -376,13 +376,321 @@ public class Cafe {
 
 // Rest of the functions definition go in here
 
-  public static void Menu(Cafe esql){}
+  public static void Menu(Cafe esql, String login){
+     
+     String query, result;
 
-  public static void UpdateProfile(Cafe esql){}
+     //run query to get the type of current user
+     try{
 
-  public static void PlaceOrder(Cafe esql){}
+         //query to get the typefrom the current user
+         query = "SELECT type FROM Users WHERE login =" + login ";";
+         //result = executeQueryAndReturnResult(query);
 
-  public static void UpdateOrder(Cafe esql){}
+      }catch(Exception e){
+         System.err.println(e.getMessage());
+      }
+
+     Bool inMenu = false;
+
+     if(result != "Manager"){
+
+        do{
+            inMenu = true;
+            System.out.println("Welcome to the menu. How would you like to proceed?");
+            System.out.println("1. Show full menu");
+            System.out.println("2. Search item name");
+            System.out.println("3. Search item type");
+            System.out.println("4. Go back to main menu");
+            switch(readChoice()){
+               case 1: outputFullMenu(esql); break;
+               case 2: searchItemName(esql); break;
+               case 3: searchItemType(esql); break;
+               case 4: inMenu = false; break;
+               default: System.out.println("Choice not recognized!"); break;
+            }
+
+        }while(inMenu);
+       
+     }//end if result != manager
+     else if(result == "Manager"){
+
+        do{
+           inMenu = true;
+
+           System.out.println("Welcome to the menu. How would you like to proceed?");
+           System.out.println("1. Show full menu");
+           System.out.println("2. Search item name");
+           System.out.println("3. Search item type");
+           System.out.println("4. Add item");
+           System.out.println("5. Delete item");
+           System.out.println("6. Update item");
+           System.out.println("7. Go back to main menu");
+           switch(readChoice()){
+              case 1: outputFullMenu(esql); break;
+              case 2: searchItemName(esql); break;
+              case 3: searchItemType(esql); break;
+              case 4: addItem(esql);        break;
+              case 5: deleteItem(esql);     break;
+              case 6: updateItem(esql);     break;
+              case 7: inMenu = false;       break;
+           }
+        }while(inMenu);  
+
+     }//end if result == manager
+
+      //end function menu
+  }
+
+  public static void outputFullMenu(Cafe esql){
+
+  }
+
+  public static void searchItemName(Cafe esql){
+
+     Bool searchItem = false;
+     do{
+        searchItem = true;
+        System.out.print("Please input the name of item you would like to search: ");
+        String itemName = in.readLine();
+        
+        if(itemName == null || itemName.length() == 0){
+           System.out.println("Please enter a item.");
+        }
+        else{
+
+            try{
+               String query;
+               query = String.format("SELECT itemName, type, price, description FROM Users WHERE itemName = '%s'", itemName);
+               if(executeQuery(query) < 0){
+                  System.out.println("This item does not exist in the menu.");
+               }
+               else{
+                  //execute the query to print out nicely into output stream
+               }
+            }catch(Exception e){
+               System.err.println (e.getMessage ());
+            }
+
+        }
+
+        System.out.println("Would you like to search another item?");
+        System.out.println("1. YES");
+        System.out.println("2. NO");
+        switch(readChoice()){
+           case 1: break;
+           case 2: searchItem = false; break;
+           default: System.out.println("Please input a valid choice."); break;
+        }
+       
+     }while(searchItem)
+
+  }
+
+  public static void searchItemType(Cafe esql){
+
+     Bool searchType = false;
+     do{
+        searchType = true;
+        System.out.print("Please input the type of item you would like to search: ");
+        String itemType = in.readLine();
+        
+        if(itemType == null || itemType.length() == 0){
+           System.out.println("Invalid input.");
+        }
+        else{
+
+            try{
+               String query;
+               query = String.format("SELECT itemName, type, price, description FROM Users WHERE type = '%s'", itemType);
+               if(esql.executeQuery(query) < 0){
+                  System.out.println("This item does not exist in the menu.");
+               }
+               else{
+                  //execute the query again to print out nicely into output stream
+               }
+            }catch(Exception e){
+               System.err.println (e.getMessage ());
+            }
+
+        }
+
+        System.out.println("Would you like to search another item?");
+        System.out.println("1. YES");
+        System.out.println("2. NO");
+        switch(readChoice()){
+           case 1: break;
+           case 2: searchType = false; break;
+           default: System.out.println("Please input a valid choice."); break;
+        }
+       
+     }while(searchType)
+
+  }
+  public static void addItem(Cafe esql){
+
+     Bool addItem = false;
+     String itemName, itemType, itemPrice, itemDescription, itemURL;
+
+     do{
+        addItem = true;
+        while(true){
+           try{
+              System.out.println("What is the new item name?");
+              itemName = in.readLine();
+              System.out.println("What is the new item type?");
+              itemType = in.readLine();
+              System.out.println("What is the new item price?");
+              itemPrice = in.readLine();
+
+              break;
+           }catch(Exception e){
+              System.out.println("Input error. Please input corret values");
+              continue;
+           }
+        }
+
+       System.out.println("What is the new item description?");
+       itemDescription = in.readLine();
+       System.out.println("What is the new item URL? (Enter 1 if empty)");
+       itemURL = in.readLine();
+
+       try{
+         
+          String query;
+          query = String.format("SELECT itemName FROM Menu WHERE itemName = '%s'", itemName);
+          
+         if(esql.executeQuery(query) > 0){
+            //check if item is in menu
+            System.out.println("Item is already in menu! Please retry");
+         }
+         else{
+
+            query = String.format("INSERT INTO Menu (itemName, type, price, description, imageURL) VALUES ('%s', '%s', '%s', '%s', '%s')", itemName, itemType, itemPrice, itemDescription, imageURL);
+            esql.executeQuery(query);
+            System.out.println("New item added successfully!");
+         }
+
+       }catch(Exception e){
+          System.err.println(e.getMessage());
+       }
+
+
+      System.out.println("Would you like to add another item?");
+      System.out.println("1. YES");
+      System.out.println("2. NO");
+      switch(readChoice()){
+         case 1: break;
+         case 2: addItem = false; break;
+         default: System.out.println("Please input a valid choice."); break;
+      }
+
+     }while(addItem);
+
+
+  }
+  public static void deleteItem(Cafe esql){
+
+     Bool delItem = false;
+     String itemName;
+     do{
+        delItem = true;
+
+        System.out.println("Which item from the menu would you like to delete");
+        itemName = in.readLine();
+
+        try{
+           String query;
+
+           query = String.format("DELETE FROM Menu WHERE itemName = '%s'", itemName);
+           System.out.println("Item deleted successfully!");
+
+        }catch(Exception e){
+           System.out.println("Some error occured. Please re-try, or either the item does not exist in Menu ");
+        }
+
+      System.out.println("Would you like to delete another item?");
+      System.out.println("1. YES");
+      System.out.println("2. NO");
+      switch(readChoice()){
+         case 1: break;
+         case 2: delItem = false;
+         default: System.out.println("Please input a valid choice.");
+      }
+
+     }while(deleteItem);
+
+  }
+public static void updateItem(Cafe esql){
+
+   Bool upItem = false;
+   String itemName, newItemName, itemType, itemPrice, itemDescription, itemURL;
+   int ifExists;
+
+   do{
+      upItem = true;
+
+      System.out.println("What item would you like to update (itemName)");
+      itemName = in.readLine();
+
+      try{
+         String query = String.format("SELECT itemName FROM Menu WHERE itemName = '%s'", itemName);
+         ifExists = esql.executeQuery(query);
+      }catch(Exception e){
+         System.out.println("Error getting item, please input a value, or item does not exist");
+      }
+      
+      if(ifExists > 0){
+         Bool currentItem = false;
+         do{
+            currentItem = true;
+
+            System.out.printf("What are of the item [%s] would you like to update?\n", itemName);
+            System.out.println("1. Name");
+            System.out.println("2. Type");
+            System.out.println("3. Price");
+            System.out.println("4. Description");
+            System.out.println("5. imageURL");
+            system.out.println("6. Exit updating current item");
+            switch(readChoice()){
+               case 1:
+
+            }
+         }while(currentItem);
+
+      }
+      else if(ifExists < 0){
+         System.out.println("Item does not exist in Menu, try adding instead of updating. ");
+      }
+
+      System.out.println("Would you like to update another item?");
+      System.out.println("1. YES");
+      System.out.println("2. NO");
+      switch(readChoice()){
+         case 1: break;
+         case 2: upItem = false;
+         default: System.out.println("Please input a valid choice.");
+      }
+
+     }while(upItem);
+
+  }
+
+
+
+  public static void UpdateProfile(Cafe esql, String login){
+
+
+
+
+
+
+
+  }
+
+  public static void PlaceOrder(Cafe esql, String login){}
+
+  public static void UpdateOrder(Cafe esql, String login){}
 
 }//end Cafe
 
