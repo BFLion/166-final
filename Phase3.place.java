@@ -18,7 +18,7 @@ public static void PlaceOrder(Cafe esql) {
 
    String timestampReceived;
    
-      System.out.println("Input time stamp Received: ");
+      System.out.println("Input time stamp Received(year-month-day\'hour:minute:second): ");
       try {
          timestampReceived = in.readLine();
       }catch (Exception e) {
