@@ -1,10 +1,13 @@
-
-
 public static void PlaceOrder(Cafe esql) {
+
+   String login;
+   System.out.println("Enter user login: ");
+   login = in.readLine();
+
+
    int ID; //order ID
-   
-   do {
-      System.out.print("Input Your order ID Number: ");
+
+      System.out.println("Input Your order ID Number: ");
       try {
          ID = Integer.parseInt(in.readLine());
          break;
@@ -12,36 +15,21 @@ public static void PlaceOrder(Cafe esql) {
          System.out.println("Your input is invalid!");
          continue;
       }
-   }while (true);
-   
+
    String timestampReceived;
    
-   do {
-      System.out.print("Input time stamp Received: ");
+      System.out.println("Input time stamp Received: ");
       try {
-         make = in.readLine();
+         timestampReceived = in.readLine();
       }catch (Exception e) {
-         System.out.println(e);
+         System.out.println(e.getMessage ());
          continue;
       }
-   }while (true);
-   
-   String paid;
-   
-   do {
-      System.out.print("Input paid or not (Yes/No): ");
-      try {
-         paid = in.readLine();
-      }catch (Exception e) {
-         System.out.println(e);
-         continue;
-      }
-   }while (true);
+
    
    int total;
-   
-   do {
-      System.out.print("Input total price: ");
+
+      System.out.println("Input total price: ");
       try {
          total = Integer.parseInt(in.readLine());
          if(total < 0) {
@@ -52,18 +40,16 @@ public static void PlaceOrder(Cafe esql) {
          System.out.println("Your input is invalid!");
          continue;
       }catch (Exception e) {
-         System.out.println(e);
+         System.out.println(e.getMessage ());
          continue;
       }
-   }while (true);
-   
 
-   
    try {
-      String query = "INSERT INTO Order (id, timestampReceived, paid, total) VALUES (" + id + ", \'" + timestampReceived + "\', \'" + model + "\', " + paid + ", " + total + ");";
+      String query = "INSERT INTO Order (login, id , timestampReceived, total) VALUES (" + login + ", \'" + ID + "\', \'" + timestampReceived + "\', " + total ");";
       
       esql.executeUpdate(query);
    }catch (Exception e) {
       System.err.println (e.getMessage());
    }
 }
+
