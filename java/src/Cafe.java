@@ -379,14 +379,15 @@ return login;
 
    public static void Menu(Cafe esql, String login) {
 
-      String query, result;
+      String query, loginType;
+      List<List<String>> result = new ArrayList<List<String>>();
 
       // run query to get the type of current user
       try {
 
          // query to get the typefrom the current user
-         query = "SELECT type FROM Users WHERE login = '" + login + "';";
-         // result = executeQueryAndReturnResult(query);
+         query = String.format("SELECT type FROM Users WHERE login = '%s'", login);
+         result = esql.executeQueryAndReturnResult(query);
 
       } catch (Exception e) {
          System.err.println(e.getMessage());
@@ -394,8 +395,8 @@ return login;
 
       boolean inMenu = false;
 
-      result = "Customer";
-      if (result != "Manager") {
+      loginType = result.get(0).get(0);
+      if (!loginType.equals("Manager")) {
 
          do {
             inMenu = true;
@@ -425,7 +426,7 @@ return login;
          } while (inMenu);
 
       } // end if result != manager
-      else if (result == "Manager") {
+      else if (loginType.equals("Manager")) {
 
          do {
             inMenu = true;
@@ -487,8 +488,9 @@ return login;
 
       for(int i = 0; i < result.size(); i++){
          for(int j = 0; j < result.get(i).size(); j++){
-               System.out.println(result.get(i).get(j));
+               System.out.printf(result.get(i).get(j) + " ");
          }
+         System.out.println();
       }
 
    }
@@ -497,6 +499,7 @@ return login;
 
       boolean searchItem = false;
       String itemName;
+      List<List<String>> result = new ArrayList<List<String>>();
       do {
          searchItem = true;
          while (true) {
@@ -517,6 +520,15 @@ return login;
                System.out.println("This item does not exist in the menu.");
             } else {
                // execute the query to print out nicely into output stream
+               result = esql.executeQueryAndReturnResult(query);
+
+               for(int i = 0; i < result.size(); i++){
+                  for(int j = 0; j < result.get(i).size(); j++){
+                        System.out.printf(result.get(i).get(j) + " ");
+                  }
+                  System.out.println();
+               }
+
             }
          } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -544,6 +556,8 @@ return login;
 
       boolean searchType = false;
       String itemType;
+      List<List<String>> result = new ArrayList<List<String>>();
+
       do {
 
          searchType = true;
@@ -566,6 +580,14 @@ return login;
                System.out.println("This item does not exist in the menu.");
             } else {
                // execute the query again to print out nicely into output stream
+               result = esql.executeQueryAndReturnResult(query);
+
+               for(int i = 0; i < result.size(); i++){
+                  for(int j = 0; j < result.get(i).size(); j++){
+                        System.out.printf(result.get(i).get(j) + " ");
+                  }
+                  System.out.println();
+               }
             }
          } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -947,24 +969,24 @@ return login;
 
    public static void UpdateProfile(Cafe esql, String login) {
 
-      String query, result;
-
-      result = "Customer";
+      String query, loginType;
+      List<List<String>> result = new ArrayList<List<String>>();
+  
 
       // run query to get the type of current user
       try {
 
          // query to get the typefrom the current user
-         query = "SELECT type FROM Users WHERE login = '" + login + "';";
-         // result = executeQueryAndReturnResult(query);
+         query = String.format("SELECT type FROM Users WHERE login = '%s'", login);
+         result = esql.executeQueryAndReturnResult(query);
 
       } catch (Exception e) {
          System.err.println(e.getMessage());
       }
 
       boolean inMenu = false;
-
-      if (result != "Manager") {
+      loginType = result.get(0).get(0);
+      if (!loginType.equals("Manager")) {
 
          String userName = login;
          do {
@@ -999,7 +1021,7 @@ return login;
          } while (inMenu);
 
       } // end if result != manager
-      else if (result == "Manager") {
+      else if (loginType.equals("Manager")) {
 
          String userName = login;
 
