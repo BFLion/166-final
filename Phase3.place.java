@@ -1,8 +1,36 @@
 public static void PlaceOrder(Cafe esql) {
 
    String login;
+
    System.out.println("Enter user login: ");
+   try{
    login = in.readLine();
+}catch (Exception e) {
+   System.out.println(e.getMessage ());
+   continue;
+}
+
+   String ItemName;
+   System.out.println("Enter Item's name: ")
+   try{
+
+   ItemName = in.readLine();
+}catch (Exception e) {
+   System.out.println(e.getMessage ());
+   continue;
+}
+
+
+   String paid；
+
+      System.out.println("Paid? (true/false): ");
+      try{
+      paid = in.readLine();
+   }catch (Exception e) {
+      System.out.println(e.getMessage ());
+      continue;
+   }
+
 
 
    int ID; //order ID
@@ -16,15 +44,8 @@ public static void PlaceOrder(Cafe esql) {
          continue;
       }
 
-   String timestampReceived;
-   
-      System.out.println("Input time stamp Received(year-month-day\'hour:minute:second): ");
-      try {
-         timestampReceived = in.readLine();
-      }catch (Exception e) {
-         System.out.println(e.getMessage ());
-         continue;
-      }
+   long now = System.currentTimeMillis();
+   Timestamp sqlTimestamp = new Timestamp(now);
 
    
    int total;
@@ -44,12 +65,30 @@ public static void PlaceOrder(Cafe esql) {
          continue;
       }
 
+   String ordertype;
+   System.out.println("What is the order status (Finished/ Started/Hasn't started): ")
+   try{
+   ItemName = in.readLine();
+   }catch (Exception e) {
+      System.out.println(e.getMessage ());
+      continue;
+   }
+
+
    try {
-      String query = "INSERT INTO Order (login, id , timestampReceived, total) VALUES (" + login + ", \'" + ID + "\', \'" + timestampReceived + "\', " + total ");";
+      String query = "INSERT INTO ORDERS (orderid，login, Paid，  sqlTimestamp, total) VALUES (" + ID + ", \'" + login +", \'" + paid +  ", \'" + sqlTimestamp + ", \'" + total ");";
       
       esql.executeUpdate(query);
    }catch (Exception e) {
       System.err.println (e.getMessage());
    }
-}
 
+
+   try{
+      String query0 = "INSERt INTO ItemStatus (orderid, itemName, sqlTimestamp, OrderType) VALUES (" + ID + ", \'"  + ItemName + ", \'" + sqlTimestamp + ", \'" + ordertype ");";
+      esql.executeUpdate(query);
+   }catch (Exception e) {
+      System.err.println (e.getMessage());
+   }
+
+}//end PlaceOrder
