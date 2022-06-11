@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.*;
 
 /**
  * This class defines a simple embedded SQL utility class that is designed to
@@ -391,7 +392,7 @@ public class Cafe {
          System.err.println(e.getMessage());
       }
 
-     Bool inMenu = false;
+     boolean inMenu = false;
 
      if(result != "Manager"){
 
@@ -449,7 +450,7 @@ public class Cafe {
 
   public static void searchItemName(Cafe esql){
 
-     Bool searchItem = false;
+     boolean searchItem = false;
      do{
         searchItem = true;
         System.out.print("Please input the name of item you would like to search: ");
@@ -463,7 +464,7 @@ public class Cafe {
             try{
                String query;
                query = String.format("SELECT itemName, type, price, description FROM Users WHERE itemName = '%s'", itemName);
-               if(executeQuery(query) < 0){
+               if(esql.executeQuery(query) < 0){
                   System.out.println("This item does not exist in the menu.");
                }
                else{
@@ -484,13 +485,13 @@ public class Cafe {
            default: System.out.println("Please input a valid choice."); break;
         }
        
-     }while(searchItem)
+     }while(searchItem);
 
   }
 
   public static void searchItemType(Cafe esql){
 
-     Bool searchType = false;
+     boolean searchType = false;
      do{
         searchType = true;
         System.out.print("Please input the type of item you would like to search: ");
@@ -525,12 +526,12 @@ public class Cafe {
            default: System.out.println("Please input a valid choice."); break;
         }
        
-     }while(searchType)
+     }while(searchType);
 
   }
   public static void addItem(Cafe esql){
 
-     Bool addItem = false;
+     boolean addItem = false;
      String itemName, itemType, itemPrice, itemDescription, itemURL;
 
      do{
@@ -567,7 +568,7 @@ public class Cafe {
          }
          else{
 
-            query = String.format("INSERT INTO Menu (itemName, type, price, description, imageURL) VALUES ('%s', '%s', '%s', '%s', '%s')", itemName, itemType, itemPrice, itemDescription, imageURL);
+            query = String.format("INSERT INTO Menu (itemName, type, price, description, imageURL) VALUES ('%s', '%s', '%s', '%s', '%s')", itemName, itemType, itemPrice, itemDescription, itemURL);
             esql.executeUpdate(query);
             System.out.println("New item added successfully!");
          }
@@ -592,7 +593,7 @@ public class Cafe {
   }
   public static void deleteItem(Cafe esql){
 
-     Bool delItem = false;
+     boolean delItem = false;
      String itemName;
      do{
         delItem = true;
@@ -620,12 +621,12 @@ public class Cafe {
          default: System.out.println("Please input a valid choice."); break;
       }
 
-     }while(deleteItem);
+     }while(delItem);
 
   }
 public static void updateItem(Cafe esql){
 
-   Bool upItem = false;
+   boolean upItem = false;
    String itemName;
    int ifExists;
 
@@ -643,7 +644,7 @@ public static void updateItem(Cafe esql){
       }
       
       if(ifExists > 0){
-         Bool currentItem = false;
+         boolean currentItem = false;
          String newItemName = itemName;
 
          do{
@@ -655,7 +656,7 @@ public static void updateItem(Cafe esql){
             System.out.println("3. Price");
             System.out.println("4. Description");
             System.out.println("5. imageURL");
-            system.out.println("6. Exit updating current item");
+            System.out.println("6. Exit updating current item");
             switch(readChoice()){
                case 1: newItemName = updateMenuName(esql, itemName); break;
                case 2: updateMenuType(esql, newItemName); break;
@@ -842,7 +843,7 @@ public static void UpdateProfile(Cafe esql, String login){
       System.err.println(e.getMessage());
    }
 
-   Bool inMenu = false;
+   boolean inMenu = false;
 
    if(result != "Manager"){
       
@@ -854,12 +855,12 @@ public static void UpdateProfile(Cafe esql, String login){
          System.out.println("2. Phone Number");
          System.out.println("3. Password");
          System.out.println("4. Favorite Items");
-         System.out.println("5. Go back to Main Menu")
+         System.out.println("5. Go back to Main Menu");
          switch(readChoice()){
             case 1: userName = updateLogin(esql, login); break;
-            case 2: updatePhoneNumber(esql, login);      break;
-            case 3: updatePassword(esql, login);         break;
-            case 4: updateFavItems(esql, login);         break;
+            case 2: updatePhoneNumber(esql, userName);      break;
+            case 3: updatePassword(esql, userName);         break;
+            case 4: updateFavItems(esql, userName);         break;
             case 5: inMenu = false;                      break;
             default: System.out.println("Choice not recognized!"); break;
          }
@@ -884,11 +885,11 @@ public static void UpdateProfile(Cafe esql, String login){
          System.out.println("7. Go back to Main Menu");
          switch(readChoice()){
             case 1: userName = updateLogin(esql, login); break;
-            case 2: updatePhoneNumber(esql, login);      break;
-            case 3: updatePassword(esql, login);         break;
-            case 4: updateFavItems(esql, login);         break;
-            case 5: updateType(esql, login);             break;
-            case 6: managerUpdateUser(esql, login);      break;
+            case 2: updatePhoneNumber(esql, userName);      break;
+            case 3: updatePassword(esql, userName);         break;
+            case 4: updateFavItems(esql, userName);         break;
+            case 5: updateType(esql, userName);             break;
+            case 6: managerUpdateUser(esql, userName);      break;
             case 7: inMenu = false;                      break;
             default: System.out.println("Choice not recognized!"); break;
          }
@@ -1032,12 +1033,13 @@ public static void updateFavItems(Cafe esql, String login){
 public static void updateType(Cafe esql, String login){
 
    String newType = null;
-   Bool input;
+   boolean input;
 
    System.out.println("DANGEROUS ACTION! If you are admin and remove admin status for yourself, you will not have admin access anymore.");
 
    System.out.println("Proceed!???? 1 for yes 0 for no");
-   input = in.nextBoolean();
+   Scanner sc = new Scanner(System.in);
+   input = sc.nextBoolean();
 
    if(!input){
       return;
@@ -1077,7 +1079,7 @@ public static void updateType(Cafe esql, String login){
    }
 
 }
-public static void managerUpdateUser(Cafe esql){
+public static void managerUpdateUser(Cafe esql, String login){
 
    String editUserLogin;
 
@@ -1107,11 +1109,11 @@ public static void managerUpdateUser(Cafe esql){
       System.out.println("ERROR processing user find, please re-try");
    }
    
-   Bool inMenu = false;
+   boolean inMenu = false;
 
    if(userExists > 0){
 
-      String userName = login;
+      String userName = editUserLogin;
 
       do{
          inMenu = true;
@@ -1125,10 +1127,10 @@ public static void managerUpdateUser(Cafe esql){
          System.out.println("6. Go back to Manager Menu");
          switch(readChoice()){
             case 1: userName = updateLogin(esql, editUserLogin); break;
-            case 2: updatePhoneNumber(esql, editUserLogin);      break;
-            case 3: updatePassword(esql, editUserLogin);         break;
-            case 4: updateFavItems(esql, editUserLogin);         break;
-            case 5: updateType(esql, editUserLogin);             break;
+            case 2: updatePhoneNumber(esql, userName);      break;
+            case 3: updatePassword(esql, userName);         break;
+            case 4: updateFavItems(esql, userName);         break;
+            case 5: updateType(esql, userName);             break;
             case 6: inMenu = false;                              break;
             default: System.out.println("Choice not recognized!"); break;
          }
