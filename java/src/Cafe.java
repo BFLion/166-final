@@ -395,7 +395,9 @@ return login;
 
       boolean inMenu = false;
 
-      loginType = result.get(0).get(0);
+  	loginType = result.get(0).get(0);
+	loginType = loginType.replaceAll(" ", "");
+      	
       if (!loginType.equals("Manager")) {
 
          do {
@@ -986,6 +988,8 @@ return login;
 
       boolean inMenu = false;
       loginType = result.get(0).get(0);
+ 	loginType = loginType.replaceAll(" ", "");
+
       if (!loginType.equals("Manager")) {
 
          String userName = login;
