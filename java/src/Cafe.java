@@ -988,7 +988,7 @@ return login;
 
       boolean inMenu = false;
       loginType = result.get(0).get(0);
- 	loginType = loginType.replaceAll(" ", "");
+ 	   loginType = loginType.replaceAll(" ", "");
 
       if (!loginType.equals("Manager")) {
 
@@ -1137,7 +1137,7 @@ return login;
          } else {
             query = String.format("UPDATE Users SET phoneNum = '%s' WHERE login = '%s'", newPhoneNumber, login);
             esql.executeUpdate(query);
-            System.out.printf("Phone number updated successfully for user [%s]!", login);
+            System.out.printf("Phone number updated successfully for user [%s]!\n", login);
          }
       } catch (Exception e) {
          System.out.println("Error updating User, please re-try or contact IT");
@@ -1174,7 +1174,7 @@ return login;
          String query;
          query = String.format("UPDATE Users SET password = '%s' WHERE login = '%s'", newPassword, login);
          esql.executeUpdate(query);
-         System.out.printf("Password updated successfully for user [%s]!", login);
+         System.out.printf("Password updated successfully for user [%s]\n!", login);
 
       } catch (Exception e) {
          System.out.println("Error updating User, please re-try or contact IT");
@@ -1202,7 +1202,7 @@ return login;
          String query;
          query = String.format("UPDATE Users SET favItems = '%s' WHERE login = '%s'", newFavItems, login);
          esql.executeUpdate(query);
-         System.out.printf("Favorite items updated successfully for user [%s]!", login);
+         System.out.printf("Favorite items updated successfully for user [%s]!\n", login);
 
       } catch (Exception e) {
          System.out.println("Error updating User, please re-try or contact IT");
@@ -1266,7 +1266,7 @@ return login;
          String query;
          query = String.format("UPDATE Users SET type = '%s' WHERE login = '%s'", newType, login);
          esql.executeUpdate(query);
-         System.out.printf("User type updated successfully for user [%s]!", login);
+         System.out.printf("User type updated successfully for user [%s]!\n", login);
 
       } catch (Exception e) {
          System.out.println("Error updating User, please re-try or contact IT");
@@ -1313,7 +1313,7 @@ return login;
          do {
             inMenu = true;
 
-            System.out.printf("Which information would you like to update for user [%s]?", editUserLogin);
+            System.out.printf("Which information would you like to update for user [%s]?\n", userName);
             System.out.println("1. Login");
             System.out.println("2. Phone Number");
             System.out.println("3. Password");
