@@ -23,6 +23,8 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * This class defines a simple embedded SQL utility class that is designed to
@@ -271,7 +273,8 @@ public class Cafe {
                         Menu(esql, authorisedUser);
                         break;
                      case 2:
-                        UpdateProfile(esql, authorisedUser);
+                        
+			authorisedUser = UpdateProfile(esql, authorisedUser);
                         break;
                      case 3:
                         PlaceOrder(esql, authorisedUser);
@@ -970,7 +973,7 @@ return login;
 
    }
 
-   public static void UpdateProfile(Cafe esql, String login) {
+   public static String UpdateProfile(Cafe esql, String login) {
 
       String query, loginType;
       List<List<String>> result = new ArrayList<List<String>>();
@@ -1024,6 +1027,8 @@ return login;
             }
 
          } while (inMenu);
+	
+	login = userName;
 
       } // end if result != manager
       else if (loginType.equals("Manager")) {
@@ -1068,9 +1073,9 @@ return login;
                   break;
             }
          } while (inMenu);
-
+	login = userName;
       } // end if result == manager
-
+	return login;
       // end function updateUser
 
    }
@@ -1106,6 +1111,14 @@ return login;
       } catch (Exception e) {
          System.out.println("Error updating User, please re-try or contact IT");
       }
+	try{
+		String query;
+		query = String.format("UPDATE Orders SET login = '%s' WHERE login = '%s'", newLogin, login);
+		esql.executeUpdate(query);
+	}catch(Exception e){
+		System.out.println("Unable to update the user records, please re-try!");
+		
+	}
 
       return newLogin;
 
@@ -1352,91 +1365,142 @@ return login;
 
    }
 
-   public static void PlaceOrder(Cafe esql, String login) {
-
-      System.out.println("Enter user login: ");
-      try{
-         login = in.readLine();
-         }
-      catch (Exception e) {
-            System.out.println(e.getMessage ());
-            
-      }
-
-      String ItemName;
-      System.out.println("Enter Item's name: ");
-      try{
-         ItemName = in.readLine();
-      }catch (Exception e) {
-      System.out.println(e.getMessage ());
-      }
 
 
-      String paid;
+public static void PlaceOrder(Cafe esql, String login) {
 
-      System.out.println("Paid? (true/false): ");
-      try{
-            paid = in.readLine();
-      }
-      catch (Exception e) {
-         System.out.println(e.getMessage ());
-      }
+   String paidStatus = "f", timeStampRecieved;
 
+   String price;
+   double priceOrder = 0;
+   List<String> itemNames = new ArrayList<>();
+   boolean inMenu = false;
 
+   do{
 
-      String ID; //order ID
+      inMenu = true;
+      System.out.println("Hello, what items would you like to order today? Please enter the name of the items you would like to order!");
+      System.out.println("1. See Menu");
+      System.out.println("2. Enter item to order");
+      System.out.println("3. Enter 3 to finish ordering!");
+      switch(readChoice()){
+               case 1: outputFullMenu(esql);           break;
+               case 2: {
 
-      System.out.println("Input Your order ID Number: ");
-      try {
-            ID = in.readLine();
-         
-         }catch (Exception e) {
-            System.out.println("Your input is invalid!");
-         
-      }
+                     String itemName, tempPrice;
+                     boolean itemInMenu = false;
+                     List<List<String>> priceResult = new ArrayList<List<String>>();
 
-      long now = System.currentTimeMillis();
-      Timestamp sqlTimestamp = new Timestamp(now);
-      
-      String total;
+                     while(true){
+                              try{
+                                       System.out.println("Please enter a menu item to order!");
+                                       itemName = in.readLine();
+                                       break;
+                              }catch(Exception e){
+                                       System.out.println("Please enter a valid input!");
+                                       continue;
+                              }
+                     }
 
-      System.out.println("Input total price: ");
-      try {
-         total = in.readLine();
-        
+                     try{
 
-      }catch (Exception e) {
-         System.out.println("Your input is invalid!");
-         
-      }
+                        String query = String.format("SELECT itemName FROM Menu WHERE itemName = '%s'", itemName);
 
-      String ordertype;
-      System.out.println("What is the order status (Finished/ Started/Hasn't started): ");
-      try{
-         ItemName = in.readLine();
-      }catch (Exception e) {
-         System.out.println(e.getMessage ());
+                        if(esql.executeQuery(query) != 0){
+                           itemInMenu = true;
+                        }
+                        
+                     }catch(Exception e){
+                        System.err.println(e.getMessage());
+                     }
 
-      }
+                     if(itemInMenu){
+                       
+                        try{
+                           String query = String.format("SELECT price FROM Menu WHERE itemName = '%s'", itemName);
+                           priceResult = esql.executeQueryAndReturnResult(query);
+                           
+                        }catch(Exception e){
+                           System.err.println(e.getMessage());
+                        }
 
+                        
+                        tempPrice = priceResult.get(0).get(0);
+                        tempPrice = tempPrice.replaceAll(" ", "");
+                        priceOrder+= Double.parseDouble(tempPrice);
+                        itemNames.add(itemName);
+                     }
+                     else{
+                        System.out.println("The item name you typed did not match our records, please either re-try or retry correctly");
+                     }
 
-      try {
-         String query = "INSERT INTO ORDERS (orderid，login, Paid，  sqlTimestamp, total) VALUES (" + ID + ", \'" + login +", \'" + paid +  ", \'" + sqlTimestamp + ", \'" + total + ");";
-         
-         esql.executeUpdate(query);
-      }catch (Exception e) {
-         System.err.println (e.getMessage());
-      }
+                  } break;
+                  case 3: inMenu = false;                                        break;
+               default: System.out.println("Please enter a valid choice 1 - 3"); break;
+               }
 
+   }while(inMenu);
 
-      try{
-         String query0 = "INSERt INTO ItemStatus (orderid, itemName, sqlTimestamp, OrderType) VALUES (" + ID + ", \'"  + ItemName + ", \'" + sqlTimestamp + ", \'" + ordertype + ");";
-         esql.executeUpdate(query0);
-      }catch (Exception e) {
-         System.err.println (e.getMessage());
-      }
+   price = String.valueOf(priceOrder);
 
+   System.out.printf("Would like to pay for this order now? The total is: %s \n", price);
+   System.out.println("1. Yes");
+   System.out.println("2. No");
+   switch(readChoice()){
+      case 1: paidStatus = "t"; break;
+      case 2: paidStatus = "f"; break;
+      default: System.out.println("Please enter a choice 1 - 2"); break;
    }
+
+   List<List<String>> tempORDERID = new ArrayList<List<String>>();
+
+   long now = System.currentTimeMillis();
+   Timestamp time = new Timestamp(now);
+   timeStampRecieved = time.toString();
+ 
+   String orderID, orderStatus;
+   orderStatus = "Hasn''t started";
+
+   try{
+      String query;
+      query = String.format("INSERT INTO Orders (login, paid, timeStampRecieved, total) VALUES ('%s', '%s', '%s', '%s')", login, paidStatus, timeStampRecieved, price);
+      esql.executeUpdate(query);
+
+      System.out.println("Order created successfully!");
+
+   }catch(Exception e){
+         System.out.println("Unable to update order, please re-try or contact IT");
+        
+         return;
+   }
+
+   try{
+         String query;
+         query = String.format("SELECT orderid FROM Orders WHERE login = '%s' AND timeStampRecieved = '%s'", login, timeStampRecieved);
+         tempORDERID = esql.executeQueryAndReturnResult(query);
+
+   }catch(Exception e){
+         System.err.println(e.getMessage());
+   }
+
+   orderID = tempORDERID.get(0).get(0);
+   orderID = orderID.replaceAll(" ", "");
+
+   for(int i = 0; i < itemNames.size(); i++){
+   
+      try{
+         String query = String.format("INSERT INTO ItemStatus (orderid, itemName, lastUpdated, status) VALUES ('%s', '%s', '%s', '%s')", orderID, itemNames.get(i), timeStampRecieved, orderStatus);
+         esql.executeUpdate(query);
+      }catch(Exception e){
+         System.err.println(e.getMessage());
+      }
+   }
+
+   System.out.println("Items orderd successfully!");
+
+   
+}
+
 
    public static void UpdateOrder(Cafe esql, String login) {
 
@@ -1472,9 +1536,9 @@ return login;
 
             switch(readChoice()){
                case 1: modifyOrder(esql , login);    break;
-               case 2: outputOrderHistroy(esql, false, login);    break;
+               case 2: outLast5Order(esql, login);    break;
                case 3: inMenu = false; break;
-               default: System.out.println("Option does not exist, choose 1 or 2!"); break;
+               default: System.out.println("Option does not exist, choose 1 - 3 !"); break;
             }
 
 
@@ -1490,15 +1554,19 @@ return login;
 
             System.out.printf("Welcome to employee/manager to update order. Current user ID: [%s]!\n", login);
             System.out.println("Choose an option");
-            System.out.println("1. See all orders within the last day");
-            System.out.println("2. Change order paid status");
-            System.out.println("3. Return to main menu");
-
+	    System.out.println("1. Modify Order");
+	    System.out.println("2. See order history (only 5 recent)");
+	    System.out.println("3. See all orders within the last day");
+	    System.out.println("4. Change order paid status");
+	    System.out.println("5. Return to main menu");
+		
             switch(readChoice()){
-               case 1: outputOrderHistroy(esql, true, login);  break;
-               case 2: changeOrderPaidStatus(esql, login);    break;
-               case 3: inMenu = false; break;
-               default: System.out.println("Option does not exist, choose 1 or 2!"); break;
+               case 1: modifyOrder(esql, login);	  break;
+               case 2: outLast5Order(esql, login);        break;
+               case 3: outputOrderHistroy(esql, login);   break;
+	       case 4: changeOrderPaidStatus(esql, login);break;
+	       case 5: inMenu = false; 			  break;
+               default: System.out.println("Option does not exist, choose 1 - 5!"); break;
             }
 
 
@@ -1514,7 +1582,8 @@ return login;
 
       String orderID, query, paidStatus, itemID, itemName, itemStatus;
       List<List<String>> result = new ArrayList<List<String>>();
-
+      paidStatus = "t";
+      boolean itemFound = false;
       while (true) {
          try {
             System.out.print("Enter order ID to modify the order: ");
@@ -1530,17 +1599,23 @@ return login;
       }
 
       try {
-         query = String.format("SELECT paid FROM Orders WHERE orderid = '%s'", orderID);
-         result = esql.executeQueryAndReturnResult(query);
-         
+         query = String.format("SELECT paid FROM Orders WHERE orderid = '%s' AND login = '%s'", orderID, login);
+         //result = esql.executeQueryAndReturnResult(query);
+         if(esql.executeQuery(query) == 0){
+		throw new SQLException();
+	 }
+	 result = esql.executeQueryAndReturnResult(query);
+ 	 itemFound = true;
       } catch (Exception e) {
-         System.out.println("ERROR: Unable to find orderID");
+         System.out.println("This order ID either does not exist, or does not belong to you.");
       }
-
-      paidStatus = result.get(0).get(0);
-      paidStatus = paidStatus.replaceAll(" ", "");
-
-      if(!paidStatus.equals("true")){ // if the item status of the orderID is not paid!
+	
+	if(itemFound){
+		paidStatus = result.get(0).get(0);
+     		 paidStatus = paidStatus.replaceAll(" ", "");
+     		// System.out.println("paidStatus: " + paidStatus + "test");
+	}
+      if(!paidStatus.equals("t")){ // if the item status of the orderID is not paid
 
          //get the orders placed for a specific orderID
          try {
@@ -1582,8 +1657,8 @@ return login;
          }
          
          itemName = result.get(check).get(0);
-         itemName = itemName.replaceAll(" ", "");
-         
+         itemName = itemName.replaceAll("\\s{2,}", "");
+         //System.out.println("ItemName: " + itemName);
          boolean inMenu = false;
          //see if the itemName the user selected is in the menu
          try {
@@ -1616,8 +1691,8 @@ return login;
             }
 
             itemStatus = result.get(0).get(0);
-            itemStatus = itemStatus.replaceAll(" ", "");
-
+            itemStatus = itemStatus.replaceAll("\\s{2,}", "");
+	    //System.out.println("itemStatus: " + itemStatus +"test");
             if(itemStatus.equals("Hasn't started")){
                boolean tempMenu = false;
 
@@ -1668,7 +1743,8 @@ return login;
                               result = esql.executeQueryAndReturnResult(query);
 
                            }catch(Exception e){
-                              System.out.println("Unable to process further, please re-try, or contact devs");
+                              System.out.println("Unable to retrive price, please re-try, or contact devs");
+			      System.err.println(e.getMessage());
                            }
 
                            temp = result.get(0).get(0);
@@ -1680,7 +1756,8 @@ return login;
                               result = esql.executeQueryAndReturnResult(query);
 
                            }catch(Exception e){
-                              System.out.println("Unable to process further, please re-try, or contact devs");
+                              System.out.println("Unable to retrieve price, please re-try, or contact devs");
+			      System.err.println(e.getMessage());
                            }
 
                            temp = result.get(0).get(0);
@@ -1692,11 +1769,12 @@ return login;
                            String newOrderPriceUpdate = String.valueOf(totalPrice);
                            
                            try{
-                              query = String.format("UPDATE Orders SET price = '%s' WHERE orderid = '%s'", newOrderPriceUpdate, orderID);
+                              query = String.format("UPDATE Orders SET total = '%s' WHERE orderid = '%s'", newOrderPriceUpdate, orderID);
                               esql.executeUpdate(query);
 
                            }catch(Exception e){
-                              System.out.println("Unable to process further, please re-try, or contact devs");
+                              System.out.println("Unable to update order, please re-try, or contact devs");
+			      System.err.println(e.getMessage());
                            }
 
                            long now = System.currentTimeMillis();
@@ -1704,18 +1782,20 @@ return login;
                            String timestamp = time.toString();
 
                            try{
-                              query = String.format("UPDATE ItemStatus SET itemName = '%s', lastUpdated = '%s' WHERE orderid = '%s' AND itemName = '%s'", newOrderPriceUpdate, timestamp, orderID, itemName);
+                              query = String.format("UPDATE ItemStatus SET itemName = '%s', lastUpdated = '%s' WHERE orderid = '%s' AND itemName = '%s'", newMenuItem, timestamp, orderID, itemName);
                               esql.executeUpdate(query);
-
+				
+			      System.out.println("Order successfully updated!");
                            }catch(Exception e){
-                              System.out.println("Unable to process further, please re-try, or contact devs");
+                              System.out.println("Unable to update item, please re-try, or contact devs");
+			      System.err.println(e.getMessage());
                            }
 
                            tempMenu = false;
                         }
 
                      } break;
-                     case 3: tempMenu = false;
+                     case 3: tempMenu = false; break;
                      default: System.out.println("Choose either 1, 2 , or 3"); break;
                   }
 
@@ -1730,51 +1810,39 @@ return login;
       
 
       }
-      else if(paidStatus.equals("true")){
+      else if(paidStatus.equals("t")){
 
-         System.out.println("Items for orderID has been paid, you may not modify this order");
+         System.out.println("You may not modify this order");
 
       }
 
    }//end fucntion modify order
-   public static void outputOrderHistroy(Cafe esql, boolean worker, String login){
-
+   public static void outputOrderHistroy(Cafe esql, String login){
+	
+	System.out.println("Order histroy from the past 24 hours.");
       List<List<String>> result = new ArrayList<List<String>>();
       String query;
+	String timeString, dayBeforeString;
 
-      if(!worker){
+	long now = System.currentTimeMillis();
+	Timestamp time = new Timestamp(now);
+	timeString = time.toString();
+	
+	Calendar cal = Calendar.getInstance();
+	cal.setTimeInMillis(time.getTime());
+	cal.add(Calendar.DAY_OF_MONTH, -1);
+	time = new Timestamp(cal.getTime().getTime());
 
-         System.out.println("Last 5 orders are listed below");
-
+	dayBeforeString = time.toString();
          try{
             
-            query = String.format("SELECT I.itemName FROM ItemStatus I, Orders O WHERE I.orderid = O.orderid AND O.login = '%s'", login);
-            result = esql.executeQueryAndReturnResult(query);
+            //query = String.format("SELECT orderid, itemName FROM ItemStatus WHERE '%s' >= dateadd(day, datediff(day, 1, GETDATE()), 0) AND '%s' < dateadd(day, datediff(day,0,GETDATE()),0)", time, time);
+            query = String.format("SELECT * FROM ItemStatus WHERE lastUpdated < '%s' AND lastUpdated >= '%s'", timeString, dayBeforeString); 
+	    result = esql.executeQueryAndReturnResult(query);
 
          }catch(Exception e){
-            System.out.println("Unable to process the request, please contact devs");
-         }  
-
-         for(int i = 0; i < result.size(); i++){
-            for(int j = 0; j < result.get(i).size(); j++){
-                  System.out.printf(result.get(i).get(j) + " ");
-            }
-            System.out.println();
-         }
-
-      }
-      else if(worker){
-         
-         long now = System.currentTimeMillis();
-         Timestamp time = new Timestamp(now);
-
-         try{
-            
-            query = String.format("SELECT orderid, itemName FROM ItemStatus WWHERE '%s' >= dateadd(day, datediff(day, 1, GETDATE()), 0) AND '%s' < dateadd(day, datediff(day,0,GETDATE()),0)", time, time);
-            result = esql.executeQueryAndReturnResult(query);
-
-         }catch(Exception e){
-            System.out.println("Unable to process the request, please contact devs");
+            //System.out.println("Unable to process the request, please contact devs");
+            System.err.println(e.getMessage());
          }
 
          for(int i = 0; i < result.size(); i++){
@@ -1784,12 +1852,40 @@ return login;
             System.out.println();
          }
 
-      }
+      
 
 
       
 
    }
+
+public static void outLast5Order(Cafe esql, String login){
+
+	List<List<String>> result = new ArrayList<List<String>>();
+      	String query;
+	
+	 System.out.println("Last 5 orders are listed below");
+
+         try{
+
+            query = String.format("SELECT I.orderid, I.itemName, I.lastUpdated, I.status, I.comments FROM ItemStatus I, Orders O WHERE I.orderid = O.orderid AND O.login = '%s' ORDER BY I.orderid DESC LIMIT 5", login);
+//            result = esql.executeQueryAndReturnResult(query);
+		esql.executeQueryAndPrintResult(query);
+         }catch(Exception e){
+            //System.out.println("Unable to process the request, please contact devs");
+            System.err.println(e.getMessage());
+         }
+
+         //for(int i = 0; i < result.size(); i++){
+         //   for(int j = 0; j < result.get(i).size(); j++){
+         //         System.out.printf(result.get(i).get(j) + " ");
+         //   } 
+         //   System.out.println();
+         //}	
+
+	//System.out.println("Test");
+}
+
    public static void changeOrderPaidStatus(Cafe esql, String login){
 
       String orderID;
@@ -1809,12 +1905,12 @@ return login;
          }
       }
 
-      System.out.printf("What paid status would you like to give to this order for orderID [%s]?", orderID);
+      System.out.printf("What paid status would you like to give to this order for orderID [%s]?\n", orderID);
       System.out.println("1. Paid");
       System.out.println("2. Non-Paid");
       switch(readChoice()){
-         case 1: paidStatus = "true"; break;
-         case 2: paidStatus = "false"; break;
+         case 1: paidStatus = "t"; break;
+         case 2: paidStatus = "f"; break;
          default: System.out.println("Please input 1, 2"); break;
 
       }
@@ -1823,7 +1919,7 @@ return login;
 
          String query = String.format("UPDATE Orders SET paid = '%s' WHERE orderid = '%s'", paidStatus, orderID);
          esql.executeUpdate(query);
-
+	 System.out.println("Status updated successfully!");
       }catch(Exception e){
          System.out.println("Order ID does not exist.");
       }
