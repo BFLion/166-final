@@ -466,23 +466,18 @@ public class Cafe {
             }
         }
         
-      
-        else{
-
-            try{
-               String query;
-               query = String.format("SELECT itemName, type, price, description FROM Users WHERE itemName = '%s'", itemName);
-               if(esql.executeQuery(query) < 0){
-                  System.out.println("This item does not exist in the menu.");
-               }
-               else{
-                  //execute the query to print out nicely into output stream
-               }
-            }catch(Exception e){
-               System.err.println (e.getMessage ());
+         try{
+            String query;
+            query = String.format("SELECT itemName, type, price, description FROM Users WHERE itemName = '%s'", itemName);
+            if(esql.executeQuery(query) < 0){
+               System.out.println("This item does not exist in the menu.");
             }
-
-        }
+            else{
+               //execute the query to print out nicely into output stream
+            }
+         }catch(Exception e){
+            System.err.println (e.getMessage ());
+         }
 
         System.out.println("Would you like to search another item?");
         System.out.println("1. YES");
@@ -519,22 +514,20 @@ public class Cafe {
             }
         }
 
-        else{
-
-            try{
-               String query;
-               query = String.format("SELECT itemName, type, price, description FROM Users WHERE type = '%s'", itemType);
-               if(esql.executeQuery(query) < 0){
-                  System.out.println("This item does not exist in the menu.");
-               }
-               else{
-                  //execute the query again to print out nicely into output stream
-               }
-            }catch(Exception e){
-               System.err.println (e.getMessage ());
+         try{
+            String query;
+            query = String.format("SELECT itemName, type, price, description FROM Users WHERE type = '%s'", itemType);
+            if(esql.executeQuery(query) < 0){
+               System.out.println("This item does not exist in the menu.");
             }
+            else{
+               //execute the query again to print out nicely into output stream
+            }
+         }catch(Exception e){
+            System.err.println (e.getMessage ());
+         }
 
-        }
+      
 
         System.out.println("Would you like to search another item?");
         System.out.println("1. YES");
