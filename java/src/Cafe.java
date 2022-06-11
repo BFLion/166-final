@@ -473,6 +473,24 @@ return login;
 
    public static void outputFullMenu(Cafe esql) {
 
+      List<List<String>> result = new ArrayList<List<String>>();
+
+      try{
+         String query;
+         query = String.format("SELECT * FROM Menu");
+
+         result = esql.executeQueryAndReturnResult(query);
+
+      }catch(Exception e){
+         System.out.println("Unable to get menu, please contact developers");
+      }
+
+      for(int i = 0; i < result.size(); i++){
+         for(int j = 0; j < result.get(i).size(); j++){
+               System.out.println(result.get(i).get(j));
+         }
+      }
+
    }
 
    public static void searchItemName(Cafe esql) {
