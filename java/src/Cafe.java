@@ -23,7 +23,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.*;
+
 
 /**
  * This class defines a simple embedded SQL utility class that is designed to
@@ -394,6 +394,7 @@ public class Cafe {
 
      boolean inMenu = false;
 
+      result = "Customer";
      if(result != "Manager"){
 
         do{
@@ -628,7 +629,7 @@ public static void updateItem(Cafe esql){
 
    boolean upItem = false;
    String itemName;
-   int ifExists;
+   int ifExists = 0;
 
    do{
       upItem = true;
@@ -1033,15 +1034,14 @@ public static void updateFavItems(Cafe esql, String login){
 public static void updateType(Cafe esql, String login){
 
    String newType = null;
-   boolean input;
+   String input;
 
    System.out.println("DANGEROUS ACTION! If you are admin and remove admin status for yourself, you will not have admin access anymore.");
 
    System.out.println("Proceed!???? 1 for yes 0 for no");
-   Scanner sc = new Scanner(System.in);
-   input = sc.nextBoolean();
+   input = in.readLine();
 
-   if(!input){
+   if(!input.equals("1")){
       return;
    }
 
