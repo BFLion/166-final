@@ -346,9 +346,7 @@ public class Cafe {
          
     String type="Customer";
     String favItems="";
- String query = String.format("INSERT INTO USERS (phoneNum,
-login, password, favItems, type) VALUES ('%s','%s','%s','%s','%s')", phone, login, 
-password, favItems, type);
+ String query = String.format("INSERT INTO USERS (phoneNum, login, password, favItems, type) VALUES ('%s','%s','%s','%s','%s')", phone, login, password, favItems, type);
          esql.executeUpdate(query);
          System.out.println ("User successfully created!");
       }catch(Exception e){
@@ -367,8 +365,7 @@ password, favItems, type);
          String login = in.readLine();
          System.out.print("\tEnter user password: ");
          String password = in.readLine();
-         String query = String.format("SELECT * FROM USERS WHERE login = '%s' AND 
-password = '%s'", login, password);
+         String query = String.format("SELECT * FROM USERS WHERE login = '%s' AND password = '%s'", login, password);
          int userNum = esql.executeQuery(query);
  if (userNum > 0)
 return login;
