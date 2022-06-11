@@ -468,7 +468,7 @@ public class Cafe {
         
          try{
             String query;
-            query = String.format("SELECT itemName, type, price, description FROM Users WHERE itemName = '%s'", itemName);
+            query = String.format("SELECT * FROM Users WHERE itemName = '%s'", itemName);
             if(esql.executeQuery(query) < 0){
                System.out.println("This item does not exist in the menu.");
             }
@@ -497,11 +497,8 @@ public class Cafe {
      boolean searchType = false;
      String itemType;
      do{
-        searchType = true;
-        
-        if(itemType == null || itemType.length() == 0){
-           System.out.println("Invalid input.");
-        }
+	
+	searchType = true;
 
          while(true){
             try{
@@ -516,7 +513,7 @@ public class Cafe {
 
          try{
             String query;
-            query = String.format("SELECT itemName, type, price, description FROM Users WHERE type = '%s'", itemType);
+            query = String.format("SELECT * FROM Users WHERE type = '%s'", itemType);
             if(esql.executeQuery(query) < 0){
                System.out.println("This item does not exist in the menu.");
             }
@@ -541,6 +538,7 @@ public class Cafe {
      }while(searchType);
 
   }
+
   public static void addItem(Cafe esql){
 
      boolean addItem = false;
