@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
+import java.sql.Timestamp;
 
 /**
  * This class defines a simple embedded SQL utility class that is designed to
@@ -1355,6 +1356,395 @@ return login;
    }
 
    public static void UpdateOrder(Cafe esql, String login) {
+
+      String query, loginType;
+      List<List<String>> result = new ArrayList<List<String>>();
+
+      // run query to get the type of current user
+      try {
+
+         // query to get the typefrom the current user
+         query = String.format("SELECT type FROM Users WHERE login = '%s'", login);
+         result = esql.executeQueryAndReturnResult(query);
+
+      } catch (Exception e) {
+         System.err.println(e.getMessage());
+      }
+
+      boolean inMenu = false;
+
+  	   loginType = result.get(0).get(0);
+	   loginType = loginType.replaceAll(" ", "");
+
+      if(loginType.equals("Customer")){
+         
+         do{
+            inMenu = true;
+
+            System.out.printf("Welcome to update order user [%s]!\n", login);
+            System.out.println("Choose an option");
+            System.out.println("1. Modify Order");
+            System.out.println("2. See order history (only 5 recent)");
+            System.out.println("3. Return to main menu");
+
+            switch(readChoice()){
+               case 1: modifyOrder(esql , login);    break;
+               case 2: outputOrderHistroy(esql, false, login);    break;
+               case 3: inMenu = false; break;
+               default: System.out.println("Option does not exist, choose 1 or 2!"); break;
+            }
+
+
+         }while(inMenu);
+
+
+      }
+      else if(!loginType.equals("Customer")){
+
+         do{
+
+            inMenu = true;
+
+            System.out.printf("Welcome to employee/manager to update order. Current user ID: [%s]!\n", login);
+            System.out.println("Choose an option");
+            System.out.println("1. See all orders within the last day");
+            System.out.println("2. Change order paid status");
+            System.out.println("3. Return to main menu");
+
+            switch(readChoice()){
+               case 1: outputOrderHistroy(esql, true, login);  break;
+               case 2: changeOrderPaidStatus(esql, login);    break;
+               case 3: inMenu = false; break;
+               default: System.out.println("Option does not exist, choose 1 or 2!"); break;
+            }
+
+
+         }while(inMenu);
+
+
+      }
+
+
+   }//end update order 
+
+   public static void modifyOrder(Cafe esql, String login){
+
+      String orderID, query, paidStatus, itemID, itemName, itemStatus;
+      List<List<String>> result = new ArrayList<List<String>>();
+
+      while (true) {
+         try {
+            System.out.print("Enter order ID to modify the order: ");
+            orderID = in.readLine();
+            // if(nameName.length() > 50){
+            // throw new SQLException("Name exceeds limit. Please try a smaller name.");
+            // }
+            break;
+         } catch (Exception e) {
+            System.out.println("Please input an orderID");
+            continue;
+         }
+      }
+
+      try {
+         query = String.format("SELECT paid FROM Orders WHERE orderid = '%s'", orderID);
+         result = esql.executeQueryAndReturnResult(query);
+         
+      } catch (Exception e) {
+         System.out.println("ERROR: Unable to find orderID");
+      }
+
+      paidStatus = result.get(0).get(0);
+      paidStatus = paidStatus.replaceAll(" ", "");
+
+      if(!paidStatus.equals("true")){ // if the item status of the orderID is not paid!
+
+         //get the orders placed for a specific orderID
+         try {
+            query = String.format("SELECT itemName, lastUpdated, status FROM ItemStatus WHERE orderid = '%s'", orderID);
+            result = esql.executeQueryAndReturnResult(query);
+            
+         } catch (Exception e) {
+            System.out.println("ERROR: Unable to find orderID");
+         }
+
+         System.out.println("For this order ID, you ordered the following items below");
+         
+         for(int i = 0; i < result.size(); i++){
+            for(int j = 0; j < result.get(i).size(); j++){
+                  System.out.printf(result.get(i).get(j) + " ");
+            }
+            System.out.println();
+         }
+
+         int check; 
+         while (true) {
+            try {
+               System.out.println("Which item would you like to modify?");
+
+               for(int i = 0; i < result.size(); i++){
+                  System.out.printf("%d. " + result.get(i).get(0), i);
+                  System.out.println();
+               }
+               System.out.println("Please input the number for item:");
+               check = Integer.parseInt(in.readLine());
+               if(check < 0 || check > result.size()-1){
+                  throw new SQLException();
+               }
+               break;
+            } catch (Exception e) {
+               System.out.println("The number you inputted was not in the menu listed above.");
+               continue;
+            }
+         }
+         
+         itemName = result.get(check).get(0);
+         itemName = itemName.replaceAll(" ", "");
+         
+         boolean inMenu = false;
+         //see if the itemName the user selected is in the menu
+         try {
+
+            query = String.format("SELECT itemName FROM Menu WHERE itemName = '%s'", itemName);
+
+            if(esql.executeQuery(query) == 0){
+               throw new SQLException();
+            }
+
+            inMenu = true;
+            
+         } catch (Exception e) {
+            System.out.println("ERROR: ItemName you choose is not in menu ... please re-try");
+
+         }
+
+
+
+         if(inMenu){
+
+            try {
+               query = String.format("SELECT status FROM ItemStatus WHERE orderid = '%s' AND itemName = '%s'", orderID, itemName);
+
+               result = esql.executeQueryAndReturnResult(query);
+               
+            } catch (Exception e) {
+               System.out.println("ERROR: Unable to retreive records, please contact the devs or retry again. Thank you.");
+   
+            }
+
+            itemStatus = result.get(0).get(0);
+            itemStatus = itemStatus.replaceAll(" ", "");
+
+            if(itemStatus.equals("Hasn't started")){
+               boolean tempMenu = false;
+
+               do{
+
+                  tempMenu = true;
+
+                  System.out.printf("You are now modifying item [%s] for orderID [%s]\n", itemName, orderID);
+                  System.out.println("1. Would you like to see the menu?");
+                  System.out.println("2. Modify order to a new order");
+                  System.out.println("3. I changed my mind, I wanna keep the order!");
+                  switch(readChoice()){
+                     case 1: outputFullMenu(esql); break;
+                     case 2: {
+
+                        String newMenuItem, temp;
+                        float previousPrice, newPrice;
+                        boolean inMenuTwo = false;
+
+                        while(true){
+                           try{
+
+                              System.out.println("Please enter new item name from menu to replace order!");
+                              newMenuItem = in.readLine();
+
+                              break;
+   
+                           }catch(Exception e){
+                              System.out.println("Please input an item!");
+                              continue;
+                           }
+                        }
+
+                        try{
+                           query = String.format("SELECT itemName FROM Menu WHERE itemName = '%s'", newMenuItem);
+                           if(esql.executeQuery(query) == 0){
+                              throw new SQLException();
+                           }
+                           inMenuTwo = true;
+                        }catch(Exception e){
+                           System.out.println("Item is not in the menu, please re-try!");
+                        }
+                        
+                        if(inMenuTwo){
+
+                           try{
+                              query = String.format("SELECT price FROM Menu WHERE itemName = '%s'", itemName);
+                              result = esql.executeQueryAndReturnResult(query);
+
+                           }catch(Exception e){
+                              System.out.println("Unable to process further, please re-try, or contact devs");
+                           }
+
+                           temp = result.get(0).get(0);
+                           temp = temp.replaceAll(" ", "");
+                           previousPrice = Float.parseFloat(temp);
+
+                           try{
+                              query = String.format("SELECT price FROM Menu WHERE itemName = '%s'", newMenuItem);
+                              result = esql.executeQueryAndReturnResult(query);
+
+                           }catch(Exception e){
+                              System.out.println("Unable to process further, please re-try, or contact devs");
+                           }
+
+                           temp = result.get(0).get(0);
+                           temp = temp.replaceAll(" ", "");
+                           newPrice = Float.parseFloat(temp);
+
+                           float totalPrice = newPrice - previousPrice;
+
+                           String newOrderPriceUpdate = String.valueOf(totalPrice);
+                           
+                           try{
+                              query = String.format("UPDATE Orders SET price = '%s' WHERE orderid = '%s'", newOrderPriceUpdate, orderID);
+                              esql.executeUpdate(query);
+
+                           }catch(Exception e){
+                              System.out.println("Unable to process further, please re-try, or contact devs");
+                           }
+
+                           long now = System.currentTimeMillis();
+                           Timestamp time = new Timestamp(now);
+                           String timestamp = time.toString();
+
+                           try{
+                              query = String.format("UPDATE ItemStatus SET itemName = '%s', lastUpdated = '%s' WHERE orderid = '%s' AND itemName = '%s'", newOrderPriceUpdate, timestamp, orderID, itemName);
+                              esql.executeUpdate(query);
+
+                           }catch(Exception e){
+                              System.out.println("Unable to process further, please re-try, or contact devs");
+                           }
+
+                           tempMenu = false;
+                        }
+
+                     } break;
+                     case 3: tempMenu = false;
+                     default: System.out.println("Choose either 1, 2 , or 3"); break;
+                  }
+
+               }while(tempMenu);
+
+            }
+            else if(!itemStatus.equals("Hasn't started")){
+               System.out.println("The item has been started, you may not update this item for this specific ID, please choose another item");
+            }
+
+         }
+      
+
+      }
+      else if(paidStatus.equals("true")){
+
+         System.out.println("Items for orderID has been paid, you may not modify this order");
+
+      }
+
+   }//end fucntion modify order
+   public static void outputOrderHistroy(Cafe esql, boolean worker, String login){
+
+      List<List<String>> result = new ArrayList<List<String>>();
+      String query;
+
+      if(!worker){
+
+         System.out.println("Last 5 orders are listed below");
+
+         try{
+            
+            query = String.format("SELECT I.itemName FROM ItemStatus I, Orders O WHERE I.orderid = O.orderid AND O.login = '%s'", login);
+            result = esql.executeQueryAndReturnResult(query);
+
+         }catch(Exception e){
+            System.out.println("Unable to process the request, please contact devs");
+         }  
+
+         for(int i = 0; i < result.size(); i++){
+            for(int j = 0; j < result.get(i).size(); j++){
+                  System.out.printf(result.get(i).get(j) + " ");
+            }
+            System.out.println();
+         }
+
+      }
+      else if(worker){
+         
+         long now = System.currentTimeMillis();
+         Timestamp time = new Timestamp(now);
+
+         try{
+            
+            query = String.format("SELECT orderid, itemName FROM ItemStatus WWHERE '%s' >= dateadd(day, datediff(day, 1, GETDATE()), 0) AND '%s' < dateadd(day, datediff(day,0,GETDATE()),0)", time, time);
+            result = esql.executeQueryAndReturnResult(query);
+
+         }catch(Exception e){
+            System.out.println("Unable to process the request, please contact devs");
+         }
+
+         for(int i = 0; i < result.size(); i++){
+            for(int j = 0; j < result.get(i).size(); j++){
+                  System.out.printf(result.get(i).get(j) + " ");
+            }
+            System.out.println();
+         }
+
+      }
+
+
+      
+
+   }
+   public static void changeOrderPaidStatus(Cafe esql, String login){
+
+      String orderID;
+      String paidStatus = "false";
+
+      while (true) {
+         try {
+            System.out.println("What order ID would you like to change?");
+            orderID = in.readLine();
+            // if(nameName.length() > 50){
+            // throw new SQLException("Name exceeds limit. Please try a smaller name.");
+            // }
+            break;
+         } catch (Exception e) {
+            System.out.println("Please input an orderID");
+            continue;
+         }
+      }
+
+      System.out.printf("What paid status would you like to give to this order for orderID [%s]?", orderID);
+      System.out.println("1. Paid");
+      System.out.println("2. Non-Paid");
+      switch(readChoice()){
+         case 1: paidStatus = "true"; break;
+         case 2: paidStatus = "false"; break;
+         default: System.out.println("Please input 1, 2"); break;
+
+      }
+
+      try{
+
+         String query = String.format("UPDATE Orders SET paid = '%s' WHERE orderid = '%s'", paidStatus, orderID);
+         esql.executeUpdate(query);
+
+      }catch(Exception e){
+         System.out.println("Order ID does not exist.");
+      }
+
    }
 
 }// end Cafe
