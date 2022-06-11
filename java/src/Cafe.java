@@ -1353,6 +1353,89 @@ return login;
    }
 
    public static void PlaceOrder(Cafe esql, String login) {
+
+      System.out.println("Enter user login: ");
+      try{
+         login = in.readLine();
+         }
+      catch (Exception e) {
+            System.out.println(e.getMessage ());
+            
+      }
+
+      String ItemName;
+      System.out.println("Enter Item's name: ");
+      try{
+         ItemName = in.readLine();
+      }catch (Exception e) {
+      System.out.println(e.getMessage ());
+      }
+
+
+      String paid;
+
+      System.out.println("Paid? (true/false): ");
+      try{
+            paid = in.readLine();
+      }
+      catch (Exception e) {
+         System.out.println(e.getMessage ());
+      }
+
+
+
+      String ID; //order ID
+
+      System.out.println("Input Your order ID Number: ");
+      try {
+            ID = in.readLine();
+         
+         }catch (Exception e) {
+            System.out.println("Your input is invalid!");
+         
+      }
+
+      long now = System.currentTimeMillis();
+      Timestamp sqlTimestamp = new Timestamp(now);
+      
+      String total;
+
+      System.out.println("Input total price: ");
+      try {
+         total = in.readLine();
+        
+
+      }catch (Exception e) {
+         System.out.println("Your input is invalid!");
+         
+      }
+
+      String ordertype;
+      System.out.println("What is the order status (Finished/ Started/Hasn't started): ");
+      try{
+         ItemName = in.readLine();
+      }catch (Exception e) {
+         System.out.println(e.getMessage ());
+
+      }
+
+
+      try {
+         String query = "INSERT INTO ORDERS (orderid，login, Paid，  sqlTimestamp, total) VALUES (" + ID + ", \'" + login +", \'" + paid +  ", \'" + sqlTimestamp + ", \'" + total + ");";
+         
+         esql.executeUpdate(query);
+      }catch (Exception e) {
+         System.err.println (e.getMessage());
+      }
+
+
+      try{
+         String query0 = "INSERt INTO ItemStatus (orderid, itemName, sqlTimestamp, OrderType) VALUES (" + ID + ", \'"  + ItemName + ", \'" + sqlTimestamp + ", \'" + ordertype + ");";
+         esql.executeUpdate(query0);
+      }catch (Exception e) {
+         System.err.println (e.getMessage());
+      }
+
    }
 
    public static void UpdateOrder(Cafe esql, String login) {
