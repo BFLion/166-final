@@ -494,8 +494,8 @@ return login;
 
          try {
             String query;
-            query = String.format("SELECT * FROM Users WHERE itemName = '%s'", itemName);
-            if (esql.executeQuery(query) < 0) {
+            query = String.format("SELECT * FROM Menu WHERE itemName = '%s'", itemName);
+            if (esql.executeQuery(query) == 0) {
                System.out.println("This item does not exist in the menu.");
             } else {
                // execute the query to print out nicely into output stream
@@ -543,8 +543,8 @@ return login;
 
          try {
             String query;
-            query = String.format("SELECT * FROM Users WHERE type = '%s'", itemType);
-            if (esql.executeQuery(query) < 0) {
+            query = String.format("SELECT * FROM Menu WHERE type = '%s'", itemType);
+            if (esql.executeQuery(query) == 0) {
                System.out.println("This item does not exist in the menu.");
             } else {
                // execute the query again to print out nicely into output stream
@@ -1047,7 +1047,7 @@ return login;
 
       try {
          String query;
-         query = String.format("SELECT login FROM Users WHERE login = '%s'", newLogin);
+         query = String.format("SELECT login FROM USERS WHERE login = '%s'", newLogin);
 
          if (esql.executeQuery(query) > 0) {
             System.out.println("The login you choose already exists, please re-try and choose a new one.");
