@@ -452,14 +452,21 @@ public class Cafe {
   public static void searchItemName(Cafe esql){
 
      boolean searchItem = false;
+     String itemName;
      do{
         searchItem = true;
-        System.out.print("Please input the name of item you would like to search: ");
-        String itemName = in.readLine();
-        
-        if(itemName == null || itemName.length() == 0){
-           System.out.println("Please enter a item.");
+        while(true){
+            try{
+               System.out.print("Please input the name of item you would like to search: ");
+               itemName = in.readLine();
+               break;
+            }catch(Exception e){
+               System.out.println("Please input a valid input");
+               continue;
+            }
         }
+        
+      
         else{
 
             try{
@@ -493,14 +500,25 @@ public class Cafe {
   public static void searchItemType(Cafe esql){
 
      boolean searchType = false;
+     String itemType;
      do{
         searchType = true;
-        System.out.print("Please input the type of item you would like to search: ");
-        String itemType = in.readLine();
         
         if(itemType == null || itemType.length() == 0){
            System.out.println("Invalid input.");
         }
+
+         while(true){
+            try{
+               System.out.print("Please input the type of item you would like to search: ");
+               itemType = in.readLine();
+               break;
+            }catch(Exception e){
+               System.out.println("Please input a valid input");
+               continue;
+            }
+        }
+
         else{
 
             try{
@@ -545,6 +563,10 @@ public class Cafe {
               itemType = in.readLine();
               System.out.println("What is the new item price? (do not include any symbols $)");
               itemPrice = in.readLine();
+              System.out.println("What is the new item description?");
+              itemDescription = in.readLine();
+              System.out.println("What is the new item URL? (Enter 1 if empty)");
+              itemURL = in.readLine();
 
               break;
            }catch(Exception e){
@@ -553,10 +575,7 @@ public class Cafe {
            }
         }
 
-       System.out.println("What is the new item description?");
-       itemDescription = in.readLine();
-       System.out.println("What is the new item URL? (Enter 1 if empty)");
-       itemURL = in.readLine();
+       
 
        try{
          
@@ -599,8 +618,16 @@ public class Cafe {
      do{
         delItem = true;
 
-        System.out.println("Which item from the menu would you like to delete");
-        itemName = in.readLine();
+         while(true){
+            try{
+               System.out.println("Which item from the menu would you like to delete");
+               itemName = in.readLine();
+               break;
+            }catch(Exception e){
+               System.out.println("Please input a valid input");
+               continue;
+            }
+        }
 
         try{
            String query;
@@ -634,8 +661,16 @@ public static void updateItem(Cafe esql){
    do{
       upItem = true;
 
-      System.out.println("What item would you like to update (itemName)");
-      itemName = in.readLine();
+      while(true){
+            try{
+               System.out.println("What item would you like to update (itemName)");
+               itemName = in.readLine();
+               break;
+            }catch(Exception e){
+               System.out.println("Please input a valid input");
+               continue;
+            }
+        }
 
       try{
          String query = String.format("SELECT itemName FROM Menu WHERE itemName = '%s'", itemName);
@@ -790,9 +825,17 @@ public static void updateMenuPrice(Cafe esql, String itemName){
 public static void updateMenuDescription(Cafe esql, String itemName){
 
    String newDes;
- 
-   System.out.printf("Enter new description to be updated for item [%s]\n", itemName);
-   newDes = in.readLine();
+
+   while(true){
+      try{
+         System.out.printf("Enter new description to be updated for item [%s]\n", itemName);
+         newDes = in.readLine();
+         break;
+      }catch(Exception e){
+         System.out.println("Please input a valid input");
+         continue;
+      }
+   }
    
    try{
       String query;
@@ -809,9 +852,17 @@ public static void updateMenuDescription(Cafe esql, String itemName){
 public static void updateMenuImageURL(Cafe esql, String itemName){
 
    String newURL;
- 
-   System.out.printf("Enter new description to be updated for item [%s]\n", itemName);
-   newURL = in.readLine();
+
+   while(true){
+      try{
+         System.out.printf("Enter new description to be updated for item [%s]\n", itemName);
+         newURL = in.readLine();
+         break;
+      }catch(Exception e){
+         System.out.println("Please input a valid input");
+         continue;
+      }
+   }
    
    try{
       String query;
@@ -1015,9 +1066,17 @@ public static void updateFavItems(Cafe esql, String login){
 
    String newFavItems;
 
-   System.out.printf("Please enter new favorite items for [%s]\n", login);
-   //TODO add line where it shows the user current phone number
-   newFavItems = in.readLine();
+   while(true){
+      try{
+         System.out.printf("Please enter new favorite items for [%s]\n", login);
+         //TODO add line where it shows the user current phone number
+         newFavItems = in.readLine();
+         break;
+      }catch(Exception e){
+         System.out.println("Please input a valid input");
+         continue;
+      }
+   }
 
    try{
 
@@ -1038,8 +1097,18 @@ public static void updateType(Cafe esql, String login){
 
    System.out.println("DANGEROUS ACTION! If you are admin and remove admin status for yourself, you will not have admin access anymore.");
 
-   System.out.println("Proceed!???? 1 for yes 0 for no");
-   input = in.readLine();
+   
+
+   while(true){
+      try{
+         System.out.println("Proceed!???? 1 for yes 0 for no");
+         input = in.readLine();
+         break;
+      }catch(Exception e){
+         System.out.println("Please input a valid input");
+         continue;
+      }
+   }
 
    if(!input.equals("1")){
       return;
@@ -1097,7 +1166,7 @@ public static void managerUpdateUser(Cafe esql, String login){
    }
 
    //once have user login, check if the user exists
-   int userExists;
+   int userExists = 0;
 
    try{
       String query;
